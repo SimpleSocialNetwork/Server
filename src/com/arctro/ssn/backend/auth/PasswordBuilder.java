@@ -21,7 +21,7 @@ public interface PasswordBuilder {
 	
 	/**
 	 * Returns a PasswordBuilder's name/version for use in 
-	 * {@link com.arctro.ssn.backend.auth.PasswordFactory} and the database
+	 * {@link PasswordFactory} and the database
 	 * @return The PasswordBuilder's name/version
 	 */
 	public String getName();

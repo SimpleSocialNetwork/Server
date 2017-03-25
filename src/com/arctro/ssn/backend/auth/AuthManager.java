@@ -102,7 +102,7 @@ public class AuthManager {
 	
 	/**
 	 * Checks if a user's password is strong enough for their UserType
-	 * @param score The password score from {@link passwordStrength(String)}
+	 * @param score The password score from {@link #passwordStrength(String)}
 	 * @param userType The user's type
 	 * @return If the users password is strong enough
 	 */

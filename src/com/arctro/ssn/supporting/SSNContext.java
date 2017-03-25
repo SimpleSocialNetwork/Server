@@ -13,7 +13,6 @@ import com.arctro.ssn.protobuf.models.impl.ShortUser;
 public class SSNContext {
 	/**
 	 * The property name of SSNContext in a ContainerRequestContext
-	 * @see ContainerRequestContext
 	 */
 	public static final String CONTEXT_PROPERTY = "_context";
 	
