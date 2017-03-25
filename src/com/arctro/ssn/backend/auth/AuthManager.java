@@ -1,5 +1,6 @@
 package com.arctro.ssn.backend.auth;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,7 @@ import com.arctro.ssn.protobuf.models.impl.Session;
 import com.arctro.ssn.protobuf.models.impl.SessionInformation;
 import com.arctro.ssn.protobuf.models.impl.SessionSignature;
 import com.arctro.ssn.protobuf.models.impl.ShortUser;
+import com.arctro.ssn.supporting.SSNContext;
 import com.arctro.ssn.supporting.SimpleRateLimiter;
 import com.arctro.ssn.supporting.Utils;
 import com.arctro.ssn.supporting.exceptions.IntegrityBrokenException;
@@ -36,9 +38,11 @@ public class AuthManager {
 	public static SimpleRateLimiter<String> loginRateLimit = new SimpleRateLimiter<String>(5, TimeUnit.MINUTES, 5);
 	
 	Connection conn;
+	SSNContext context;
 	
-	public AuthManager(Connection conn){
-		this.conn = conn;
+	public AuthManager(SSNContext context){
+		this.context = context;
+		this.conn = context.getConnection();
 	}
 	
 	public SessionInformation login(String email, String password) throws SQLException, InvalidUserException, RateLimitException{
@@ -99,6 +103,12 @@ public class AuthManager {
 		}
 		
 		return null;
+	}
+	
+	public String generateSalt(){
+		byte[] salt = new byte[16];
+		context.getRandom().nextBytes(salt);
+		return new String(salt, StandardCharsets.UTF_8);	
 	}
 	
 	public static SessionSignature encrypt(Session session) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
