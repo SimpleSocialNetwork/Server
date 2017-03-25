@@ -3,6 +3,10 @@ package com.arctro.ssn.backend.auth.password;
 import com.arctro.ssn.backend.auth.PasswordBuilder;
 import com.arctro.ssn.supporting.Utils;
 
+/**
+ * Generates a password by hashing the password and salt using SHA-256
+ * @author Ben McLean
+ */
 public class SHA256PasswordBuilder implements PasswordBuilder{
 
 	@Override

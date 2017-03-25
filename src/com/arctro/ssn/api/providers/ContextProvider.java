@@ -13,6 +13,11 @@ import com.arctro.ssn.supporting.Const;
 import com.arctro.ssn.supporting.SSNContext;
 import com.arctro.ssn.supporting.exceptions.InvalidSessionException;
 
+/**
+ * Provides a {@link com.arctro.ssn.supporting.SSNContext} to all endpoints for
+ * use with controllers/managers
+ * @author Ben McLean
+ */
 @Priority(1)
 @Provider
 public class ContextProvider implements ContainerRequestFilter{

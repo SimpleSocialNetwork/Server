@@ -9,6 +9,10 @@ import javax.ws.rs.ext.Provider;
 
 import com.arctro.ssn.supporting.SSNContext;
 
+/**
+ * Cleans up after an endpoint is executed
+ * @author Ben McLean
+ */
 @Provider
 public class ContextCleanupProvider implements ContainerResponseFilter{
 
