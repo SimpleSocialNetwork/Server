@@ -4,6 +4,9 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,8 +22,11 @@ import com.arctro.ssn.protobuf.models.impl.ShortUser;
 import com.arctro.ssn.supporting.Utils;
 import com.arctro.ssn.supporting.exceptions.IntegrityBrokenException;
 import com.arctro.ssn.supporting.exceptions.InvalidSessionException;
+import com.arctro.ssn.supporting.exceptions.InvalidUserException;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.nulabinc.zxcvbn.Strength;
+import com.nulabinc.zxcvbn.Zxcvbn;
 
 public class AuthManager {
 	
@@ -30,12 +36,39 @@ public class AuthManager {
 		this.conn = conn;
 	}
 	
-	public SessionInformation login(String email, String password){
+	public SessionInformation login(String email, String password) throws SQLException, InvalidUserException{
+		PreparedStatement prepared = conn.prepareStatement("SELECT `id`, `password`, `salt`, `password_version` FROM `users` WHERE `email` = ?");
+		prepared.setString(1, email);
+		ResultSet rs = prepared.executeQuery();
+		
+		if(!rs.next()){
+			throw new InvalidUserException();
+		}
+		
+		PasswordBuilder passwordBuilder = PasswordBuilderFactory.get(rs.getString("password_version"));
+		String hashedPassword = passwordBuilder.hash(password, rs.getString("salt"));
+		
+		if(!hashedPassword.equals(rs.getString("password"))){
+			throw new InvalidUserException();
+		}
+		
+		if(!PasswordBuilderFactory.isNewest(rs.getString("password_version"))){
+			//TODO change password
+		}
+		
+		//TODO the stuff
+		
 		return null;
 	}
 	
 	public SessionInformation register(String firstName, String lastName, String email, String password){
 		return null;
+	}
+	
+	public int passwordStrength(String password){
+		Zxcvbn zxcvbn = new Zxcvbn();
+		Strength strength = zxcvbn.measure(password);
+		return strength.getScore();
 	}
 	
 	public ShortUser getSessionUser(byte[] serialized) throws InvalidProtocolBufferException, InvalidSessionException{

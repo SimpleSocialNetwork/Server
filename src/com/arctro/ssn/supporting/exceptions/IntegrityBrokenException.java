@@ -1,6 +1,6 @@
 package com.arctro.ssn.supporting.exceptions;
 
-public class IntegrityBrokenException extends Exception{
+public class IntegrityBrokenException extends SSNException{
 	private static final long serialVersionUID = 1L;
 	
 	public IntegrityBrokenException(){}

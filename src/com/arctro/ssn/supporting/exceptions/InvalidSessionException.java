@@ -1,6 +1,6 @@
 package com.arctro.ssn.supporting.exceptions;
 
-public class InvalidSessionException extends Exception{
+public class InvalidSessionException extends SSNException{
 	private static final long serialVersionUID = 1L;
 
 	public InvalidSessionException(){}
