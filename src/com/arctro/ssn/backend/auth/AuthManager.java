@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,10 +20,12 @@ import com.arctro.ssn.protobuf.models.impl.Session;
 import com.arctro.ssn.protobuf.models.impl.SessionInformation;
 import com.arctro.ssn.protobuf.models.impl.SessionSignature;
 import com.arctro.ssn.protobuf.models.impl.ShortUser;
+import com.arctro.ssn.supporting.SimpleRateLimiter;
 import com.arctro.ssn.supporting.Utils;
 import com.arctro.ssn.supporting.exceptions.IntegrityBrokenException;
 import com.arctro.ssn.supporting.exceptions.InvalidSessionException;
 import com.arctro.ssn.supporting.exceptions.InvalidUserException;
+import com.arctro.ssn.supporting.exceptions.RateLimitException;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.nulabinc.zxcvbn.Strength;
@@ -30,13 +33,17 @@ import com.nulabinc.zxcvbn.Zxcvbn;
 
 public class AuthManager {
 	
+	public static SimpleRateLimiter<String> loginRateLimit = new SimpleRateLimiter<String>(5, TimeUnit.MINUTES, 5);
+	
 	Connection conn;
 	
 	public AuthManager(Connection conn){
 		this.conn = conn;
 	}
 	
-	public SessionInformation login(String email, String password) throws SQLException, InvalidUserException{
+	public SessionInformation login(String email, String password) throws SQLException, InvalidUserException, RateLimitException{
+		loginRateLimit.throwLimited(email);
+		
 		PreparedStatement prepared = conn.prepareStatement("SELECT `id`, `password`, `salt`, `password_version` FROM `users` WHERE `email` = ?");
 		prepared.setString(1, email);
 		ResultSet rs = prepared.executeQuery();
@@ -63,6 +70,12 @@ public class AuthManager {
 	
 	public SessionInformation register(String firstName, String lastName, String email, String password){
 		return null;
+	}
+	
+	public boolean isPasswordStrongEnough(int score, Protobuf.UserType userType){
+		return (userType == Protobuf.UserType.USER && score >= 1) ||
+				(userType == Protobuf.UserType.MOD && score >= 2) ||
+				(userType == Protobuf.UserType.ADMIN && score == 4);
 	}
 	
 	public int passwordStrength(String password){
