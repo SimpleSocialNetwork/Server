@@ -30,8 +30,6 @@ import com.arctro.ssn.supporting.exceptions.InvalidUserException;
 import com.arctro.ssn.supporting.exceptions.RateLimitException;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.nulabinc.zxcvbn.Strength;
-import com.nulabinc.zxcvbn.Zxcvbn;
 
 /**
  * Manages user authentication
@@ -98,29 +96,6 @@ public class AuthManager {
 	
 	public SessionInformation register(String firstName, String lastName, String email, String password){
 		return null;
-	}
-	
-	/**
-	 * Checks if a user's password is strong enough for their UserType
-	 * @param score The password score from {@link #passwordStrength(String)}
-	 * @param userType The user's type
-	 * @return If the users password is strong enough
-	 */
-	public boolean isPasswordStrongEnough(int score, Protobuf.UserType userType){
-		return (userType == Protobuf.UserType.USER && score >= 1) ||
-				(userType == Protobuf.UserType.MOD && score >= 2) ||
-				(userType == Protobuf.UserType.ADMIN && score == 4);
-	}
-	
-	/**
-	 * Checks the inputted password's strength
-	 * @param password The password to check
-	 * @return The inputted password's strength
-	 */
-	public int passwordStrength(String password){
-		Zxcvbn zxcvbn = new Zxcvbn();
-		Strength strength = zxcvbn.measure(password);
-		return strength.getScore();
 	}
 	
 	/**
