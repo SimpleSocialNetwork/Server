@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 
 import com.arctro.ssn.backend.auth.PasswordValidator;
 import com.arctro.ssn.protobuf.Protobuf;
+import com.arctro.ssn.supporting.validators.UserTypeValidator;
 
 @Path("/auth")
 public class AuthService {
@@ -20,10 +21,10 @@ public class AuthService {
 	public Response getPasswordStrength(@Context ContainerRequestContext crc, @FormParam("password") String password, @FormParam("type") Integer type){
 		PasswordValidator passwordValidator = null;
 		
-		if(type == null){
-			passwordValidator = new PasswordValidator();
-		}else{
+		if(new UserTypeValidator().isValid(type)){
 			passwordValidator = new PasswordValidator(Protobuf.UserType.forNumber(type));
+		}else{
+			passwordValidator = new PasswordValidator();
 		}
 		
 		Protobuf.PasswordStrength.Builder psb = Protobuf.PasswordStrength.newBuilder();
